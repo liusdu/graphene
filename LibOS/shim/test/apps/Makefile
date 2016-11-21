@@ -1,6 +1,7 @@
 SYS ?= $(shell gcc -dumpmachine)
 export SYS
 
+.DEFAULT_GOAL := build-all
 apps = lmbench gcc busybox lighttpd bash apache make python r openjdk
 packed_apps = lmbench
 
@@ -33,7 +34,7 @@ manifest_rules = \
 
 ifeq ($(SYS),x86_64-linux-gnu)
 build-all:
-	for f in $(apps); do (cd $$f; $(MAKE) $(DEBUG) || true; cd ..); done
+	for f in $(apps); do (cd $$f; $(MAKE) DEBUG=$(DEBUG) || true; cd ..); done
 
 .PHONY: pack
 pack:

@@ -51,6 +51,8 @@ start-native-server:
 		$(if $(CONF),$(CONF),lighttpd.conf)
 
 start-multithreaded-native-server:
+	echo $(PREFIX) build/sbin/lighttpd -D -m build/lib -f \
+		                $(if $(CONF),$(CONF),lighttpd-multithreaded.conf)
 	$(PREFIX) build/sbin/lighttpd -D -m build/lib -f \
                 $(if $(CONF),$(CONF),lighttpd-multithreaded.conf)
 

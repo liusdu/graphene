@@ -1,4 +1,4 @@
-subdirs = native
+subdirs = native apps
 
 SYS ?= $(shell gcc -dumpmachine)
 export SYS
