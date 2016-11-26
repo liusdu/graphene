@@ -59,6 +59,9 @@ ifeq ($(PROFILING), 1)
 CFLAGS += -DPROFILE
 endif
 
+ifeq ($(RAW_SYSCALL), 1)
+CFLAGS += -DRAW_SYSCALL
+endif
 ifeq ($(SYS),x86_64-linux-gnu)
 libsysdb.so: $(addsuffix .o,$(objs)) $(filter %.map %.lds,$(LDFLAGS)) \
 	     $(graphene_lib) $(pal_lib)

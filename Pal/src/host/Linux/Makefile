@@ -16,6 +16,9 @@ ifeq ($(PROFILING),1)
 CFLAGS	+= -DPROFILING=1
 endif
 
+ifeq ($(RAW_SYSCALL),1)
+CFLAGS	+= -DRAW_SYSCALL=1
+endif
 host_target = libpal-Linux.a
 
 defs	= -DIN_PAL -DPAL_DIR="$(PAL_DIR)"
@@ -33,6 +36,9 @@ CFLAGS += -DDEBUG
 export DEBUG
 endif
 
+ifeq ($(RAW_SYSCALL),1)
+objs += db_raw_syscall
+endif
 ../../host_endian.h: host_endian.h
 	$(MAKE) -C ../.. $<
 

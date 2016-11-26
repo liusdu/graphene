@@ -47,7 +47,7 @@ lighttpd-multithreaded.conf:
 	echo "include \"lighttpd-generic.conf\""               >> $@
 
 start-native-server:
-	$(PREFIX) build/sbin/lighttpd -D -m build/lib -f \
+	taskset -c 3 $(PREFIX) build/sbin/lighttpd -D -m build/lib -f \
 		$(if $(CONF),$(CONF),lighttpd.conf)
 
 start-multithreaded-native-server:
@@ -57,7 +57,7 @@ start-multithreaded-native-server:
                 $(if $(CONF),$(CONF),lighttpd-multithreaded.conf)
 
 start-graphene-server:
-	$(PREFIX) ./lighttpd.manifest.sgx -D -m /lighttpd -f \
+	taskset  -c 3 $(PREFIX) ./lighttpd.manifest.sgx -D -m /lighttpd -f \
 		$(if $(CONF),$(CONF),lighttpd.conf)
 
 start-multithreaded-graphene-server:

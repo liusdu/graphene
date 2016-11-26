@@ -27,6 +27,9 @@ CFLAGS	+= -I. -I../include -Ihost/$(OS) -I../lib
 ifeq ($(PROFILING),1)
 CFLAGS	+= -DPROFILING=1
 endif
+ifeq ($(RAW_SYSCALL),1)
+CFLAGS  += -DRAW_SYSCALL=1
+endif
 
 pal_target = $(pal_lib) $(pal_lib_post) $(pal_static) $(pal_loader) $(pal_sec) pal
 defs	= -DIN_PAL -D$(OS_MACRO) -DPAL_DIR="$(PAL_DIR)"
@@ -44,6 +47,10 @@ ifeq ($(SYS),x86_64-linux-gnu)
 pal_target += user_start.o user_shared_start.o
 endif
 
+ifeq ($(RAW_SYSCALL),1)
+pal_target += db_raw_syscall.o
+objs += db_raw_syscall
+endif
 all: | check_target $(pal_target)
 
 ifeq ($(DEBUG),1)

@@ -9,7 +9,7 @@ BUILD_DIR = glibc-build
 GLIBC_TARGET = $(addprefix $(BUILD_DIR)/,libc.so.6 ld-linux-x86-64.so.2 libpthread.so.0 libm.so.6 libdl.so.2 libutil.so.1 crt1.o crti.o crtn.o liblibos.so.1)
 
 all: $(GLIBC_TARGET)
-	$(MAKE) -C $(SHIM_DIR) all
+	$(MAKE) -C $(SHIM_DIR) all $@
 
 install:
 	[ -d ../Runtime ] || mkdir -p ../Runtime
@@ -36,7 +36,7 @@ $(GLIBC_SRC)/configure:
 .PHONY: pack
 pack: $(GLIBC_TARGET)
 	@../Scripts/pack_binaries.sh glibc $^
-	$(MAKE) -C $(SHIM_DIR) pack
+	$(MAKE) -C $(SHIM_DIR) pack $@
 
 clean:
 	$(MAKE) -C $(SHIM_DIR) clean

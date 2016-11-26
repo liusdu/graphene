@@ -546,6 +546,7 @@ static inline void list_splice_tail_init(struct list_head *list,
              pos = n, n = list_entry(n->member.prev, typeof(*n), member))
 
 #define check_list_head(head)                                           \
+    /*
         do {                                                            \
             struct list_head * pos;                                     \
                                                                         \
@@ -555,6 +556,7 @@ static inline void list_splice_tail_init(struct list_head *list,
                 assert(pos->next->prev == pos);                         \
             }                                                           \
         } while (0)
+        */
 
 /*
  * Double linked lists with a single pointer list head.

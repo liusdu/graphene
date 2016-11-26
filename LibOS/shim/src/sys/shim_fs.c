@@ -687,7 +687,8 @@ ssize_t shim_do_sendfile (int ofd, int ifd, off_t * offset,
     struct shim_handle * hdlo = get_fd_handle(ofd, NULL, NULL);
 
     if (!hdli || !hdlo)
-        return -EBADF;
+        return (ssize_t)DkRawSendfile(ofd, ifd, (void *) offset, count);
+        //return -EBADF;
 
     off_t old_offset = 0;
     int ret = -EACCES;

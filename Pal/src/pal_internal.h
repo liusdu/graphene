@@ -449,4 +449,44 @@ static inline void log_stream (const char * uri)
         write_log(2, uri, "\n");
 }
 
+#ifdef RAW_SYSCALL
+int _DkRawEpollWait (int epfd, void * events,
+                                        int maxevents, int timeout);
+
+int _DkRawEpollPWait (int epfd, void * events,
+                                         int maxevents, int timeout, const
+                                         void* sigmask, size_t sigsetsize);
+int _DkRawEpollCreate(int size);
+int _DkRawEpollCtl(int epfd, int op, int fd, void * event);
+int _DkRawSocket (int family, int type, int protocol);
+int _DkRawBind (int sockfd, void * addr, int addrlen);
+int _DkRawListen (int sockfd, int backlog);
+int _DkRawConnect (int sockfd, void * addr, int addrlen);
+int _DkRawAccept (int fd, void * addr, void * addrlen);
+int _DkRawAccept4 (int fd, void * addr, void * addrlen, int flags);
+long _DkRawSendto (int sockfd, const void * buf, size_t len, int flags, const
+        void * addr, int addrlen);
+int _DkRawFcntl (int fd, int cmd, unsigned long arg);
+long _DkRawSendmsg (int sockfd, void * msg, int flags);
+long _DkRawRecvfrom (int sockfd, void * buf, size_t len, int flags,
+                    void * addr, void * addrlen);
+
+long _DkRawRecvmsg (int sockfd, void * msg, int flags);
+int _DkRawShutdown (int sockfd, int how);
+int _DkRawGetsockname (int sockfd, void * addr, int * addrlen);
+int _DkRawSetsockopt (int fd, int level, int optname, char * optval,
+                                                        int optlen);
+
+int _DkRawClose (int fd);
+size_t _DkRawRead (int fd, void * buf, size_t count);
+size_t _DkRawWrite (int fd, const void * buf, size_t count);
+long _DkRawWritev (int fd, const void * vec, int vlen);
+long  _DkRawSendfile (int ofd, int ifd, void * offset,
+                                  size_t count);
+int _DkRawIoctl (int fd, int cmd, unsigned long arg);
+    
+
+
+#endif
+
 #endif

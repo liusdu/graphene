@@ -45,7 +45,11 @@ int shim_do_fcntl (int fd, int cmd, unsigned long arg)
 
     struct shim_handle * hdl = get_fd_handle(fd, &flags, handle_map);
     if (!hdl)
+#ifndef RAW_SYSCALL
         return -EBADF;
+#else
+        return DkRawFcntl(fd, cmd, arg);
+#endif
 
     switch (cmd) {
         /* F_DUPFD (long)

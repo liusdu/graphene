@@ -509,4 +509,49 @@ PAL_NUM DkMemoryAvailableQuota (void);
 PAL_BOL
 DkCpuIdRetrieve (PAL_IDX leaf, PAL_IDX subleaf, PAL_IDX values[4]);
 
+
+
+#ifdef RAW_SYSCALL
+int DkRawEpollWait (int epfd, void * events,
+                                int maxevents, int timeout);
+int DkRawEpollPWait (int epfd, void * events,
+                                 int maxevents, int timeout, const void*
+                                 sigmask, size_t sigsetsize);
+
+int DkRawEpollCreate(int size);
+int DkRawEpollCtl(int epfd, int op, int fd, void * event);
+int DkRawSocket (int family, int type, int protocol);
+int DkRawBind (int sockfd, void * addr, int addrlen);
+int DkRawListen (int sockfd, int backlog);
+int DkRawConnect (int sockfd, void * addr, int addrlen);
+int DkRawAccept (int fd, void * addr, void * addrlen);
+int DkRawAccept4 (int fd, void * addr, void * addrlen,
+                                             int flags);
+long DkRawSendto (int sockfd, const void * buf, size_t len, int flags,
+                                const void * addr, int addrlen);
+int DkRawFcntl (int fd, int cmd, unsigned long arg);
+long DkRawSendmsg (int sockfd, void * msg, int flags);
+long DkRawRecvfrom (int sockfd, void * buf, size_t len, int flags,
+                                          void * addr, void * addrlen);
+long DkRawRecvmsg (int sockfd, void * msg, int flags);
+int DkRawShutdown (int sockfd, int how);
+int DkRawGetsockname (int sockfd, void * addr, int * addrlen);
+int DkRawSetsockopt (int fd, int level, int optname, char * optval,
+                                                int optlen);
+int DkRawClose (int fd);
+size_t DkRawRead (int fd, void * buf, size_t count);
+size_t DkRawWrite(int fd, const void * buf, size_t count);
+long DkRawWritev (int fd, const void * vec, int vlen);
+long  DkRawSendfile (int ofd, int ifd, void * offset,
+                                          size_t count);
+int DkRawIoctl (int fd, int cmd, unsigned long arg);
+
+
+
+
+#endif
+
+/*raw syscall support*/
+
+
 #endif /* PAL_H */

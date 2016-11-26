@@ -63,7 +63,11 @@ size_t shim_do_read (int fd, void * buf, size_t count)
 {
     struct shim_handle * hdl = get_fd_handle(fd, NULL, NULL);
     if (!hdl)
+#ifndef RAW_SYSCALL
         return -EBADF;
+#else
+        return DkRawRead(fd, buf, count);
+#endif
     int ret = do_handle_read(hdl, buf, count);
     put_handle(hdl);
     return ret;
@@ -90,7 +94,8 @@ size_t shim_do_write (int fd, const void * buf, size_t count)
 {
     struct shim_handle * hdl = get_fd_handle(fd, NULL, NULL);
     if (!hdl)
-        return -EBADF;
+        return DkRawWrite(fd, buf, count);
+        //return -EBADF;
 
     int ret = do_handle_write(hdl, buf, count);
     put_handle(hdl);
@@ -158,8 +163,13 @@ out:
 int shim_do_close (int fd)
 {
     struct shim_handle * handle = detach_fd_handle(fd, NULL, NULL);
-    if (!handle)
+    if (!handle) {
+#ifndef RAW_SYSCALL
         return -EBADF;
+#else
+        return DkRawClose(fd);
+#endif
+    }
 
     close_handle(handle);
     return 0;

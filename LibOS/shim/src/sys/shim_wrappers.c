@@ -94,7 +94,8 @@ ssize_t shim_do_writev (int fd, const struct iovec * vec, int vlen)
 
     struct shim_handle * hdl = get_fd_handle(fd, NULL, NULL);
     if (!hdl)
-        return -EBADF;
+        return (ssize_t)DkRawWritev(fd, (const void * )vec, vlen);
+        //return -EBADF;
 
     int ret = 0;
 

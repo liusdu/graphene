@@ -298,7 +298,11 @@ int shim_do_ioctl (int fd, int cmd, unsigned long arg)
 {
     struct shim_handle * hdl = get_fd_handle(fd, NULL, NULL);
     if (!hdl)
+#ifndef RAW_SYSCALL
         return -EBADF;
+#else
+        return DkRawIoctl(fd, cmd, arg);
+#endif
 
     int ret = -EAGAIN;
     switch(cmd) {

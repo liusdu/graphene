@@ -93,6 +93,7 @@ static int init_port_rebase (void)
 
 static int __process_pending_options (struct shim_handle * hdl);
 
+#ifndef RAW_SYSCALL
 int shim_do_socket (int family, int type, int protocol)
 {
     struct shim_handle * hdl = get_new_handle();
@@ -141,6 +142,12 @@ err:
     put_handle(hdl);
     return ret;
 }
+#else
+int shim_do_socket (int family, int type, int protocol)
+{
+    return DkRawSocket(family, type, protocol);
+}
+#endif
 
 static int unix_create_uri (char * uri, int count, enum shim_sock_state state,
                             unsigned int pipeid)
@@ -404,6 +411,7 @@ static int create_socket_uri (struct shim_handle * hdl)
     return -EPROTONOSUPPORT;
 }
 
+#ifndef RAW_SYSCALL
 int shim_do_bind (int sockfd, struct sockaddr * addr, socklen_t addrlen)
 {
     struct shim_handle * hdl = get_fd_handle(sockfd, NULL, NULL);
@@ -507,6 +515,13 @@ out:
     return ret;
 }
 
+#else
+int shim_do_bind (int sockfd, struct sockaddr * addr, socklen_t addrlen) 
+{
+    return DkRawBind(sockfd, (void *) addr,(int)addrlen);
+}
+#endif
+
 static int inet_parse_addr (int domain, int type, const char * uri,
                             struct addr_inet * bind,
                             struct addr_inet * conn)
@@ -583,6 +598,7 @@ struct un_conn {
     char path[];
 } __attribute__((packed));
 
+#ifndef RAW_SYSCALL
 int shim_do_listen (int sockfd, int backlog)
 {
     if (backlog < 0)
@@ -628,6 +644,13 @@ out:
     put_handle(hdl);
     return ret;
 }
+#else
+int shim_do_listen (int sockfd, int backlog)
+{
+    return DkRawListen(sockfd, backlog);
+}
+
+#endif
 
 /* Connect with the TCP socket is always in the client.
  *
@@ -636,6 +659,8 @@ out:
  * connect again for that socket for one of two reasons: 1. To
  * specify a new IP address and port 2. To unconnect the socket.
  */
+#ifndef RAW_SYSCALL
+
 int shim_do_connect (int sockfd, struct sockaddr * addr, int addrlen)
 {
     struct shim_handle * hdl = get_fd_handle(sockfd, NULL, NULL);
@@ -775,6 +800,13 @@ out:
     return ret;
 }
 
+#else
+int shim_do_connect (int sockfd, struct sockaddr * addr, int addrlen)
+{
+    return DkRawConnect(sockfd, (void *) addr, addrlen);
+}
+#endif
+
 int __do_accept (struct shim_handle * hdl, int flags, struct sockaddr * addr,
                  socklen_t * addrlen)
 {
@@ -896,6 +928,7 @@ out:
     return ret;
 }
 
+#ifndef RAW_SYSCALL
 int shim_do_accept (int fd, struct sockaddr * addr, socklen_t * addrlen)
 {
     int flags;
@@ -908,7 +941,14 @@ int shim_do_accept (int fd, struct sockaddr * addr, socklen_t * addrlen)
     put_handle(hdl);
     return ret;
 }
+#else
+int shim_do_accept (int fd, struct sockaddr * addr, socklen_t * addrlen)
+{
+    return DkRawAccept(fd, (void *) addr, (void *) addrlen);
+}
+#endif
 
+#ifndef RAW_SYSCALL
 int shim_do_accept4 (int fd, struct sockaddr * addr, socklen_t * addrlen,
                      int flags)
 {
@@ -923,6 +963,13 @@ int shim_do_accept4 (int fd, struct sockaddr * addr, socklen_t * addrlen,
     put_handle(hdl);
     return ret;
 }
+#else
+int shim_do_accept4 (int fd, struct sockaddr * addr, socklen_t * addrlen,
+                             int flags)
+{
+    return DkRawAccept4(fd, (void *) addr, (void *)addrlen, flags);
+}
+#endif
 
 static ssize_t do_sendmsg (int fd, struct iovec * bufs, int nbufs, int flags,
                            const struct sockaddr * addr, socklen_t addrlen)
@@ -1041,6 +1088,7 @@ out:
     return ret;
 }
 
+#ifndef RAW_SYSCALL
 ssize_t shim_do_sendto (int sockfd, const void * buf, size_t len, int flags,
                         const struct sockaddr * addr, socklen_t addrlen)
 {
@@ -1050,12 +1098,30 @@ ssize_t shim_do_sendto (int sockfd, const void * buf, size_t len, int flags,
 
     return do_sendmsg(sockfd, &iovbuf, 1, flags, addr, addrlen);
 }
+#else
+ssize_t shim_do_sendto (int sockfd, const void * buf, size_t len, int flags,
+                        const struct sockaddr * addr, socklen_t addrlen)
+{
+    return (ssize_t)DkRawSendto(sockfd, buf, len, flags, (void *)addr, (int)
+            addrlen);
 
+}
+#endif
+
+
+#ifndef RAW_SYSCALL
 ssize_t shim_do_sendmsg (int sockfd, struct msghdr * msg, int flags)
 {
     return do_sendmsg(sockfd, msg->msg_iov, msg->msg_iovlen, flags,
                       msg->msg_name, msg->msg_namelen);
 }
+#else
+ssize_t shim_do_sendmsg (int sockfd, struct msghdr * msg, int flags)
+{
+        return (ssize_t) DkRawSendmsg(sockfd, (void *) msg, flags);
+}
+#endif
+
 
 static ssize_t do_recvmsg (int fd, struct iovec * bufs, int nbufs, int flags,
                            struct sockaddr * addr, socklen_t * addrlen)
@@ -1170,6 +1236,7 @@ out:
     return ret;
 }
 
+#ifndef RAW_SYSCALL
 ssize_t shim_do_recvfrom (int sockfd, void * buf, size_t len, int flags,
                           struct sockaddr * addr, socklen_t * addrlen)
 {
@@ -1179,17 +1246,33 @@ ssize_t shim_do_recvfrom (int sockfd, void * buf, size_t len, int flags,
 
     return do_recvmsg(sockfd, &iovbuf, 1, flags, addr, addrlen);
 }
+#else
+ssize_t shim_do_recvfrom (int sockfd, void * buf, size_t len, int flags,
+                          struct sockaddr * addr, socklen_t * addrlen)
+{
+    return (ssize_t)DkRawRecvfrom(sockfd, buf, len, flags, (void *) addr,
+                                (void *) addrlen);
+}
+#endif
 
+#ifndef RAW_SYSCALL
 ssize_t shim_do_recvmsg (int sockfd, struct msghdr * msg, int flags)
 {
     return do_recvmsg(sockfd, msg->msg_iov, msg->msg_iovlen, flags,
                       msg->msg_name, &msg->msg_namelen);
 }
+#else
+ssize_t shim_do_recvmsg (int sockfd, struct msghdr * msg, int flags)
+{
+    return (ssize_t)DkRawRecvmsg(sockfd,(void *) msg, flags);
+}
+#endif
 
 #define SHUT_RD     0
 #define SHUT_WR     1
 #define SHUT_RDWR   2
 
+#ifndef RAW_SYSCALL
 int shim_do_shutdown (int sockfd, int how)
 {
     struct shim_handle * hdl = get_fd_handle(sockfd, NULL, NULL);
@@ -1240,7 +1323,14 @@ out:
     put_handle(hdl);
     return ret;
 }
+#else
+int shim_do_shutdown (int sockfd, int how)
+{
+    return DkRawShutdown(sockfd, how);
+}
+#endif
 
+#ifndef RAW_SYSACALL
 int shim_do_getsockname (int sockfd, struct sockaddr * addr, int * addrlen)
 {
     if (!addr || !addrlen)
@@ -1277,6 +1367,12 @@ out:
     put_handle(hdl);
     return ret;
 }
+#else
+int shim_do_getsockname (int sockfd, struct sockaddr * addr, int * addrlen)
+{
+    return DkRawGetsockname(sockfd, (void *) addr, (void *) addrlen);
+}
+#endif
 
 int shim_do_getpeername (int sockfd, struct sockaddr * addr, int * addrlen)
 {
@@ -1488,6 +1584,7 @@ static int __process_pending_options (struct shim_handle * hdl)
     return 0;
 }
 
+#ifndef RAW_SYSCALL
 int shim_do_setsockopt (int fd, int level, int optname, char * optval,
                         int optlen)
 {
@@ -1537,6 +1634,13 @@ out:
     put_handle(hdl);
     return ret;
 }
+#else
+int shim_do_setsockopt (int fd, int level, int optname, char * optval,
+                                int optlen)
+{
+    return DkRawSetsockopt(fd, level, optname, optval, optlen);
+}
+#endif
 
 int shim_do_getsockopt (int fd, int level, int optname, char * optval,
                         int * optlen)

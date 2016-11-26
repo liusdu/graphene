@@ -85,10 +85,17 @@ int shim_do_epoll_create1 (int flags)
 }
 
 /* the 'size' argument of epoll_create is not used */
+#ifndef RAW_SYSCALL
 int shim_do_epoll_create (int size)
 {
     return shim_do_epoll_create1(0);
 }
+#else 
+int shim_do_epoll_create (int size)
+{   
+        return DkRawEpollCreate(size);
+}
+#endif
 
 static void update_epoll (struct shim_epoll_handle * epoll)
 {
@@ -112,6 +119,7 @@ static void update_epoll (struct shim_epoll_handle * epoll)
         set_event(&epoll->event, epoll->nwaiters);
 }
 
+#ifndef RAW_SYSCALL
 int shim_do_epoll_ctl (int epfd, int op, int fd,
                        struct __kernel_epoll_event * event)
 {
@@ -208,7 +216,16 @@ out:
     put_handle(epoll_hdl);
     return ret;
 }
+#else
+int shim_do_epoll_ctl (int epfd, int op, int fd,
+                              struct __kernel_epoll_event * event)
+{
+    return DkRawEpollCtl(epfd, op, fd, (void *)event);
+}
 
+#endif
+
+#ifndef RAW_SYSCALL
 int shim_do_epoll_wait (int epfd, struct __kernel_epoll_event * events,
                         int maxevents, int timeout)
 {
@@ -301,7 +318,16 @@ reply:
     put_handle(epoll_hdl);
     return ret;
 }
+#else
+int shim_do_epoll_wait (int epfd, struct __kernel_epoll_event * events,
+                                int maxevents, int timeout)
+{
+    return DkRawEpollWait(epfd, (void *)events, maxevents, timeout);
+}
 
+#endif
+
+#ifndef RAW_SYSCALL
 int shim_do_epoll_pwait (int epfd, struct __kernel_epoll_event * events,
                          int maxevents, int timeout, const __sigset_t * sigmask,
                          size_t sigsetsize)
@@ -309,6 +335,16 @@ int shim_do_epoll_pwait (int epfd, struct __kernel_epoll_event * events,
     int ret = shim_do_epoll_wait (epfd, events, maxevents, timeout);
     return ret;
 }
+#else
+int shim_do_epoll_pwait (int epfd, struct __kernel_epoll_event * events,
+                                 int maxevents, int timeout, const __sigset_t
+                                 * sigmask, size_t sigsetsize)
+{
+    return DkRawEpollPWait(epfd, (void *) events, maxevents, timeout, (void *)
+            sigmask, sigsetsize);
+}
+
+#endif
 
 static int epoll_close (struct shim_handle * hdl)
 {

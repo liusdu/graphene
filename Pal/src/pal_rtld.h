@@ -93,7 +93,7 @@ struct link_map {
     const Elf32_Word * l_gnu_chain_zero;
 
 #if CACHE_LOADED_BINARIES == 1
-#define NRELOCS 64
+#define NRELOCS 128
     ElfW(Addr) * relocs[NRELOCS];
     int nrelocs;
 #endif

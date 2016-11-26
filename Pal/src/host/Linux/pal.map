@@ -9,11 +9,21 @@ PAL {
         DkThreadCreate; DkThreadDelayExecution;
         DkThreadYieldExecution; DkThreadExit; DkThreadResume;
 
+	DkRawEpollWait;DkRawEpollPWait;DkRawEpollCreate;DkRawEpollCtl;
+	DkRawSocket;DkRawBind;DkRawListen;DkRawConnect;DkRawAccept;
+	DkRawAccept4;DkRawSendto;DkRawSendmsg;DkRawRecvmsg;DkRawRecvfrom;
+	DkRawRecvmsg;DkRawShutdown;DkRawGetsockname;DkRawSetsockopt;
+	DkRawFcntl; DkRawIoctl;
+
+	DkRawClose;DkRawRead;DkRawWrite;DkRawWritev;
+	DkRawSendfile;
+
         DkSemaphoreCreate; DkNotificationEventCreate;
         DkSynchronizationEventCreate;
         DkSemaphoreRelease;
         DkEventSet;  DkEventClear;
         DkObjectsWaitAny;
+
 
         DkStreamOpen; DkStreamRead; DkStreamWrite;
         DkStreamMap; DkStreamUnmap; DkStreamSetLength;
