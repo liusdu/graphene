@@ -237,9 +237,10 @@ static int __bkeep_mmap (void * addr, uint64_t length,
     int ret = 0;
 
     debug("bkeep_mmap: %p-%p\n", addr, addr + length);
-
+/*
     if (file)
         get_handle(file);
+        */
 
     if (tmp) { /* the range is included in a vma */
         if (tmp->addr != addr || tmp->length != length) {
@@ -327,9 +328,10 @@ static int __bkeep_mmap (void * addr, uint64_t length,
     return 0;
 
 err:
+    /*
     if (file)
         put_handle(file);
-
+*/
     return ret;
 }
 
