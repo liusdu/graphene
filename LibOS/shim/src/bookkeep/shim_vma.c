@@ -119,6 +119,7 @@ int init_vma (void)
    split after we find something */
 static inline void assert_vma (void)
 {
+    if( 0 ) {
     struct shim_vma * tmp;
     struct shim_vma * prev __attribute__((unused)) = NULL;
 
@@ -127,6 +128,7 @@ static inline void assert_vma (void)
         assert(tmp->length > 0);
         assert(!prev || prev->addr + prev->length <= tmp->addr);
         prev = tmp;
+    }
     }
 }
 
