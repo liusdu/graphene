@@ -94,8 +94,13 @@ size_t shim_do_write (int fd, const void * buf, size_t count)
 {
     struct shim_handle * hdl = get_fd_handle(fd, NULL, NULL);
     if (!hdl)
+#ifndef RAW_SYSCALL
+        return -EBADF;
+
+#else
         return DkRawWrite(fd, buf, count);
-        //return -EBADF;
+#endif
+
 
     int ret = do_handle_write(hdl, buf, count);
     put_handle(hdl);
