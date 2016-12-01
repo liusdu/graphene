@@ -11,6 +11,16 @@ PAL {
         DkEventSet;  DkEventClear;
         DkObjectsWaitAny;
 
+	DkRawEpollWait;DkRawEpollPWait;DkRawEpollCreate;DkRawEpollCtl;
+	DkRawSocket;DkRawBind;DkRawListen;DkRawConnect;DkRawAccept;
+	DkRawAccept4;DkRawSendto;DkRawSendmsg;DkRawRecvmsg;DkRawRecvfrom;
+	DkRawRecvmsg;DkRawShutdown;DkRawGetsockname;DkRawSetsockopt;
+	DkRawFcntl; DkRawIoctl;
+
+	DkRawClose;DkRawRead;DkRawWrite;DkRawWritev;
+	DkRawSendfile;
+
+
         DkStreamOpen; DkStreamRead; DkStreamWrite;
         DkStreamMap; DkStreamUnmap; DkStreamSetLength;
         DkStreamFlush; DkStreamDelete;

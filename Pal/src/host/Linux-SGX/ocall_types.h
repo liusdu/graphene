@@ -47,6 +47,29 @@ enum {
     OCALL_DELETE,
     OCALL_SCHEDULE,
     OCALL_LOAD_DEBUG,
+#ifdef RAW_SYSCALL
+    OCALL_SOCKET,
+    OCALL_SENDTO,
+    OCALL_LISTEN,
+    OCALL_RECVFROM,
+    OCALL_WRITEV,
+    OCALL_EPOLL_CREATE,
+    OCALL_EPOLL_WAIT,
+    OCALL_SENDFILE,
+    OCALL_BIND,
+    OCALL_IOCTL,
+    OCALL_RECVMSG,
+    OCALL_EPOLL_PWAIT,
+    OCALL_EPOLL_CTL,
+    OCALL_SENDMSG,
+    OCALL_CONNECT,
+    OCALL_FCNTL,
+    OCALL_SETSOCKOPT,
+    OCALL_ACCEPT,
+    OCALL_ACCEPT4,
+    OCALL_SHUTDOWN,
+    OCALL_GETSOCKNAME,
+#endif
     OCALL_NR,
 };
 
@@ -269,3 +292,145 @@ typedef struct {
 typedef struct {
     unsigned int ms_tid;
 } ms_ocall_schedule_t;
+
+#ifdef RAW_SYSCALL
+
+typedef struct {
+    int ms_fd;
+    int ms_cmd;
+    long ms_arg;
+}ms_ocall_ioctl_t;
+
+typedef struct {
+    int ms_size;
+}ms_ocall_epoll_create_t;
+
+typedef struct {
+    int ms_sockfd;
+    int ms_backlog;
+}ms_ocall_listen_t;
+
+typedef struct {
+    int ms_fd;
+    void * ms_addr;
+    void * ms_addrlen;
+}ms_ocall_accept_t;
+
+typedef struct {
+    int ms_sockfd;
+    void * ms_addr;
+    int ms_addrlen;
+}ms_ocall_bind_t;
+
+typedef struct {
+    int ms_family;
+    int ms_type;
+    int ms_protocol;
+}ms_ocall_socket_t;
+
+typedef struct {
+    int ms_sockfd;
+    void * ms_buf;
+    size_t ms_len;
+    int ms_flags;
+    void * ms_addr;
+    void * ms_addrlen;
+}ms_ocall_recvfrom_t;
+
+typedef struct {
+    int ms_sockfd;
+    void * ms_buf;
+    size_t ms_len;
+    int ms_flags;
+    void * ms_addr;
+    int ms_addrlen;
+}ms_ocall_sendto_t;
+
+typedef struct {
+    int ms_fd;
+    void * ms_addr;
+    void * ms_addrlen;
+    int ms_flags;
+}ms_ocall_accept4_t;
+
+typedef struct {
+    int ms_sockfd;
+    void * ms_addr;
+    int * ms_addrlen;
+}ms_ocall_getsockname_t;
+
+typedef struct {
+    int ms_epfd;
+    int ms_op;
+    int ms_fd;
+    void * ms_event;
+}ms_ocall_epoll_ctl_t;
+
+typedef struct {
+    int ms_epfd;
+    void * ms_events;
+    int ms_maxevents;
+    int ms_timeout;
+    void* ms_sigmask;
+    size_t ms_sigsetsize;
+}ms_ocall_epoll_pwait_t;
+
+typedef struct {
+    int ms_fd;
+    int ms_cmd;
+    long ms_arg;
+}ms_ocall_fcntl_t;
+
+typedef struct {
+    int ms_sockfd;
+    void * ms_addr;
+    int ms_addrlen;
+}ms_ocall_connect_t;
+
+typedef struct {
+    int ms_sockfd;
+    void * ms_msg;
+    int ms_flags;
+}ms_ocall_recvmsg_t;
+
+typedef struct {
+    int ms_ofd;
+    int ms_ifd;
+    void * ms_offset;
+    size_t ms_count;
+}ms_ocall_sendfile_t;
+
+typedef struct {
+    int ms_sockfd;
+    int ms_how;
+}ms_ocall_shutdown_t;
+
+typedef struct {
+    int ms_sockfd;
+    void * ms_msg;
+    int ms_flags;
+}ms_ocall_sendmsg_t;
+
+typedef struct {
+    int ms_fd;
+    void * ms_vec;
+    int ms_vlen;
+}ms_ocall_writev_t;
+
+typedef struct {
+    int ms_epfd;
+    void * ms_events;
+    int ms_maxevents;
+    int ms_timeout;
+}ms_ocall_epoll_wait_t;
+
+typedef struct {
+    int ms_fd;
+    int ms_level;
+    int ms_optname;
+    char * ms_optval;
+    int ms_optlen;
+}ms_ocall_setsockopt_t;
+
+
+#endif

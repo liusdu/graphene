@@ -36,6 +36,10 @@ CC += -gdwarf-2 -g3
 CFLAGS += -DDEBUG
 export DEBUG
 endif
+ifeq ($(RAW_SYSCALL),1)
+CFLAGS    += -DRAW_SYSCALL=1
+endif
+
 
 ../../host_endian.h: host_endian.h
 	$(MAKE) -C ../../ $<

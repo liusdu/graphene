@@ -814,3 +814,304 @@ int ocall_load_debug(const char * command)
     OCALL_EXIT();
     return retval;
 }
+
+#ifdef RAW_SYSCALL
+int _DkRawGetsockname (int sockfd, void * addr, int * addrlen){
+    int retval = 0;
+    ms_ocall_getsockname_t *ms;
+    OCALLOC(ms, ms_ocall_getsockname_t *, sizeof(*ms));
+    ms->ms_sockfd = sockfd;
+    ms->ms_addr = (void *)COPY_TO_USER((char *)addr, *(int *) addrlen);
+    ms->ms_addrlen = (void *)COPY_TO_USER((char *)addrlen, 4);
+    retval = SGX_OCALL(OCALL_GETSOCKNAME, ms);
+    if (retval >= 0)
+        COPY_FROM_USER(addr, ms->ms_addr, *(int *) addrlen);
+        COPY_FROM_USER(addrlen, ms->ms_addrlen, 4);
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawFcntl (int fd, int cmd, unsigned long arg){
+    int retval = 0;
+    ms_ocall_fcntl_t *ms;
+    OCALLOC(ms, ms_ocall_fcntl_t *, sizeof(*ms));
+    ms->ms_fd = fd;
+    ms->ms_cmd = cmd;
+    ms->ms_arg = arg;
+    retval = SGX_OCALL(OCALL_FCNTL, ms);
+    OCALL_EXIT();
+    return retval;
+}
+
+long _DkRawWritev (int fd, const void * vec, int vlen){
+    int retval = 0;
+    ms_ocall_writev_t *ms;
+    OCALLOC(ms, ms_ocall_writev_t *, sizeof(*ms));
+    ms->ms_fd = fd;
+    ms->ms_vec = (void *)COPY_TO_USER((char *)vec, 16 * vlen);
+    ms->ms_vlen = vlen;
+    retval = SGX_OCALL(OCALL_WRITEV, ms);
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawBind (int sockfd, void * addr, int addrlen){
+    int retval = 0;
+    ms_ocall_bind_t *ms;
+    OCALLOC(ms, ms_ocall_bind_t *, sizeof(*ms));
+    ms->ms_sockfd = sockfd;
+    ms->ms_addr = (void *)COPY_TO_USER((char *)addr, addrlen);
+    ms->ms_addrlen = addrlen;
+    retval = SGX_OCALL(OCALL_BIND, ms);
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawShutdown (int sockfd, int how){
+    int retval = 0;
+    ms_ocall_shutdown_t *ms;
+    OCALLOC(ms, ms_ocall_shutdown_t *, sizeof(*ms));
+    ms->ms_sockfd = sockfd;
+    ms->ms_how = how;
+    retval = SGX_OCALL(OCALL_SHUTDOWN, ms);
+    OCALL_EXIT();
+    return retval;
+}
+
+long _DkRawRecvfrom (int sockfd, void * buf, size_t len, int flags, void * addr, void * addrlen){
+    int retval = 0;
+    ms_ocall_recvfrom_t *ms;
+    OCALLOC(ms, ms_ocall_recvfrom_t *, sizeof(*ms));
+    ms->ms_sockfd = sockfd;
+    ms->ms_buf = (void *)COPY_TO_USER((char *)buf, len);
+    ms->ms_len = len;
+    ms->ms_flags = flags;
+    ms->ms_addr = (void *)COPY_TO_USER((char *)addr, *( int *) addrlen);
+    ms->ms_addrlen = (void *)COPY_TO_USER((char *)addrlen, 4);
+    retval = SGX_OCALL(OCALL_RECVFROM, ms);
+    if (retval >= 0) {
+        COPY_FROM_USER(buf, ms->ms_buf, len);
+        COPY_FROM_USER(addr, ms->ms_addr, *( int *) addrlen);
+        COPY_FROM_USER(addrlen, ms->ms_addrlen, 4);
+    }
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawAccept4 (int fd, void * addr, void * addrlen, int flags){
+    int retval = 0;
+    ms_ocall_accept4_t *ms;
+    OCALLOC(ms, ms_ocall_accept4_t *, sizeof(*ms));
+    ms->ms_fd = fd;
+    ms->ms_addr = (void *)COPY_TO_USER((char *)addr, *(int *) addrlen);
+    ms->ms_addrlen = (void *)COPY_TO_USER((char *)addrlen, 4);
+    ms->ms_flags = flags;
+    retval = SGX_OCALL(OCALL_ACCEPT4, ms);
+    if (retval >= 0) {
+        COPY_FROM_USER(addr, ms->ms_addr, *(int *) addrlen);
+        COPY_FROM_USER(addrlen, ms->ms_addrlen, 4);
+    }
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawEpollWait (int epfd, void * events, int maxevents, int timeout){
+    int retval = 0;
+    ms_ocall_epoll_wait_t *ms;
+    OCALLOC(ms, ms_ocall_epoll_wait_t *, sizeof(*ms));
+    ms->ms_epfd = epfd;
+    ms->ms_events = (void *)COPY_TO_USER((char *)events, 12 * maxevents);
+    ms->ms_maxevents = maxevents;
+    ms->ms_timeout = timeout;
+    retval = SGX_OCALL(OCALL_EPOLL_WAIT, ms);
+    OCALL_EXIT();
+    return retval;
+}
+
+long _DkRawSendmsg (int sockfd, void * msg, int flags){
+    int retval = 0;
+    ms_ocall_sendmsg_t *ms;
+    OCALLOC(ms, ms_ocall_sendmsg_t *, sizeof(*ms));
+    ms->ms_sockfd = sockfd;
+    ms->ms_msg = (void *)COPY_TO_USER((char *)msg, 56);
+    ms->ms_flags = flags;
+    retval = SGX_OCALL(OCALL_SENDMSG, ms);
+    if (retval >= 0)
+        COPY_FROM_USER(msg, ms->ms_msg, 56);
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawEpollCtl(int epfd, int op, int fd, void * event){
+    int retval = 0;
+    ms_ocall_epoll_ctl_t *ms;
+    OCALLOC(ms, ms_ocall_epoll_ctl_t *, sizeof(*ms));
+    ms->ms_epfd = epfd;
+    ms->ms_op = op;
+    ms->ms_fd = fd;
+    ms->ms_event = (void *)COPY_TO_USER((char *)event, 12);
+    retval = SGX_OCALL(OCALL_EPOLL_CTL, ms);
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawAccept (int fd, void * addr, void * addrlen){
+    int retval = 0;
+    ms_ocall_accept_t *ms;
+    OCALLOC(ms, ms_ocall_accept_t *, sizeof(*ms));
+    ms->ms_fd = fd;
+    ms->ms_addr = (void *)COPY_TO_USER((char *)addr, *(int *)addrlen);
+    ms->ms_addrlen = (void *) COPY_TO_USER((char *)addrlen, 4);
+    retval = SGX_OCALL(OCALL_ACCEPT, ms);
+    if (retval >= 0) {
+        COPY_FROM_USER(addr, ms->ms_addr, *(int *)addrlen);
+        COPY_FROM_USER(addrlen, ms->ms_addrlen, 4);
+    }
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawSetsockopt (int fd, int level, int optname, char * optval, int optlen){
+    int retval = 0;
+    ms_ocall_setsockopt_t *ms;
+    OCALLOC(ms, ms_ocall_setsockopt_t *, sizeof(*ms));
+    ms->ms_fd = fd;
+    ms->ms_level = level;
+    ms->ms_optname = optname;
+    ms->ms_optval = (void *)COPY_TO_USER((char *)optval, optlen);
+    ms->ms_optlen = optlen;
+    retval = SGX_OCALL(OCALL_SETSOCKOPT, ms);
+    OCALL_EXIT();
+    return retval;
+}
+
+long _DkRawRecvmsg (int sockfd, void * msg, int flags){
+    int retval = 0;
+    ms_ocall_recvmsg_t *ms;
+    OCALLOC(ms, ms_ocall_recvmsg_t *, sizeof(*ms));
+    ms->ms_sockfd = sockfd;
+    ms->ms_msg = (void *)COPY_TO_USER((char *)msg, 56);
+    ms->ms_flags = flags;
+    retval = SGX_OCALL(OCALL_RECVMSG, ms);
+    if (retval >= 0)
+        COPY_FROM_USER(msg, ms->ms_msg, 56);
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawEpollCreate(int size){
+    int retval = 0;
+    ms_ocall_epoll_create_t *ms;
+    OCALLOC(ms, ms_ocall_epoll_create_t *, sizeof(*ms));
+    ms->ms_size = size;
+    retval = SGX_OCALL(OCALL_EPOLL_CREATE, ms);
+    OCALL_EXIT();
+    return retval;
+}
+
+long _DkRawSendfile (int ofd, int ifd, void * offset, size_t count){
+    int retval = 0;
+    ms_ocall_sendfile_t *ms;
+    OCALLOC(ms, ms_ocall_sendfile_t *, sizeof(*ms));
+    ms->ms_ofd = ofd;
+    ms->ms_ifd = ifd;
+    ms->ms_offset = (void *)COPY_TO_USER((char *)offset, 8);
+    ms->ms_count = count;
+    retval = SGX_OCALL(OCALL_SENDFILE, ms);
+    if (retval >= 0)
+        COPY_FROM_USER(offset, ms->ms_offset, 8);
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawEpollPWait (int epfd, void * events, int maxevents, int timeout, const void* sigmask, size_t sigsetsize){
+    int retval = 0;
+    ms_ocall_epoll_pwait_t *ms;
+    OCALLOC(ms, ms_ocall_epoll_pwait_t *, sizeof(*ms));
+    ms->ms_epfd = epfd;
+    ms->ms_events = (void *)COPY_TO_USER((char *)events, maxevents *12);
+    ms->ms_maxevents = maxevents;
+    ms->ms_timeout = timeout;
+    ms->ms_sigmask = (void *)COPY_TO_USER((char *) sigmask,sigsetsize);
+    ms->ms_sigsetsize = sigsetsize;
+    retval = SGX_OCALL(OCALL_EPOLL_PWAIT, ms);
+    if (retval >= 0)
+        COPY_FROM_USER(events, ms->ms_events, maxevents*12);
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawConnect (int sockfd, void * addr, int addrlen){
+    int retval = 0;
+    ms_ocall_connect_t *ms;
+    OCALLOC(ms, ms_ocall_connect_t *, sizeof(*ms));
+    ms->ms_sockfd = sockfd;
+    ms->ms_addr = (void *)COPY_TO_USER((char *)addr, addrlen);
+    ms->ms_addrlen = addrlen;
+    retval = SGX_OCALL(OCALL_CONNECT, ms);
+    OCALL_EXIT();
+    return retval;
+}
+
+long _DkRawSendto (int sockfd, const void * buf, size_t len, int flags, const void * addr, int addrlen){
+    int retval = 0;
+    ms_ocall_sendto_t *ms;
+    OCALLOC(ms, ms_ocall_sendto_t *, sizeof(*ms));
+    ms->ms_sockfd = sockfd;
+    ms->ms_buf = (void *)COPY_TO_USER((char *)buf, len);
+    ms->ms_len = len;
+    ms->ms_flags = flags;
+    ms->ms_addr = addr;
+    ms->ms_addrlen = addrlen;
+    retval = SGX_OCALL(OCALL_SENDTO, ms);
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawIoctl (int fd, int cmd, unsigned long arg){
+    int retval = 0;
+    ms_ocall_ioctl_t *ms;
+    OCALLOC(ms, ms_ocall_ioctl_t *, sizeof(*ms));
+    ms->ms_fd = fd;
+    ms->ms_cmd = cmd;
+    ms->ms_arg = arg;
+    retval = SGX_OCALL(OCALL_IOCTL, ms);
+    if (retval >= 0)
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawListen (int sockfd, int backlog){
+    int retval = 0;
+    ms_ocall_listen_t *ms;
+    OCALLOC(ms, ms_ocall_listen_t *, sizeof(*ms));
+    ms->ms_sockfd = sockfd;
+    ms->ms_backlog = backlog;
+    retval = SGX_OCALL(OCALL_LISTEN, ms);
+    if (retval >= 0)
+    OCALL_EXIT();
+    return retval;
+}
+
+int _DkRawSocket (int family, int type, int protocol){
+    int retval = 0;
+    ms_ocall_socket_t *ms;
+    OCALLOC(ms, ms_ocall_socket_t *, sizeof(*ms));
+    ms->ms_family = family;
+    ms->ms_type = type;
+    ms->ms_protocol = protocol;
+    retval = SGX_OCALL(OCALL_SOCKET, ms);
+    if (retval >= 0)
+    OCALL_EXIT();
+    return retval;
+}
+size_t _DkRawRead (int fd, void * buf, size_t count) {
+    return ocall_read (fd, buf, count);
+}
+int _DkRawClose (int fd) {
+    return ocall_close(fd);
+}
+size_t _DkRawWrite (int fd, const void * buf, size_t count) {
+    return ocall_write(fd, buf, count);
+}
+#endif

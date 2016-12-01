@@ -652,6 +652,200 @@ static int sgx_ocall_load_debug(void * pms)
     load_gdb_command(command);
     return 0;
 }
+#ifdef RAW_SYSCALL
+int sgx_ocall_bind(void * pms)
+{
+    ms_ocall_bind_t *ms = (ms_ocall_bind_t *) pms;
+    int ret;
+    ODEBUG(OCALL_BIND, ms);
+    ret = INLINE_SYSCALL(bind, 3, ms->ms_sockfd, ms->ms_addr, ms->ms_addrlen);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_sendto(void * pms)
+{
+    ms_ocall_sendto_t *ms = (ms_ocall_sendto_t *) pms;
+    int ret;
+    ODEBUG(OCALL_SENDTO, ms);
+    ret = INLINE_SYSCALL(sendto, 6, ms->ms_sockfd, ms->ms_buf, ms->ms_len, ms->ms_flags, ms->ms_addr, ms->ms_addrlen);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_ioctl(void * pms)
+{
+    ms_ocall_ioctl_t *ms = (ms_ocall_ioctl_t *) pms;
+    int ret;
+    ODEBUG(OCALL_IOCTL, ms);
+    ret = INLINE_SYSCALL(ioctl, 3, ms->ms_fd, ms->ms_cmd, ms->ms_arg);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_epoll_create(void * pms)
+{
+    ms_ocall_epoll_create_t *ms = (ms_ocall_epoll_create_t *) pms;
+    int ret;
+    ODEBUG(OCALL_EPOLL_CREATE, ms);
+    ret = INLINE_SYSCALL(epoll_create, 1, ms->ms_size);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_listen(void * pms)
+{
+    ms_ocall_listen_t *ms = (ms_ocall_listen_t *) pms;
+    int ret;
+    ODEBUG(OCALL_LISTEN, ms);
+    ret = INLINE_SYSCALL(listen, 2, ms->ms_sockfd, ms->ms_backlog);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_shutdown(void * pms)
+{
+    ms_ocall_shutdown_t *ms = (ms_ocall_shutdown_t *) pms;
+    int ret;
+    ODEBUG(OCALL_SHUTDOWN, ms);
+    ret = INLINE_SYSCALL(shutdown, 2, ms->ms_sockfd, ms->ms_how);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_sendmsg(void * pms)
+{
+    ms_ocall_sendmsg_t *ms = (ms_ocall_sendmsg_t *) pms;
+    int ret;
+    ODEBUG(OCALL_SENDMSG, ms);
+    ret = INLINE_SYSCALL(sendmsg, 3, ms->ms_sockfd, ms->ms_msg, ms->ms_flags);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_epoll_wait(void * pms)
+{
+    ms_ocall_epoll_wait_t *ms = (ms_ocall_epoll_wait_t *) pms;
+    int ret;
+    ODEBUG(OCALL_EPOLL_WAIT, ms);
+    ret = INLINE_SYSCALL(epoll_wait, 4, ms->ms_epfd, ms->ms_events, ms->ms_maxevents, ms->ms_timeout);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_epoll_ctl(void * pms)
+{
+    ms_ocall_epoll_ctl_t *ms = (ms_ocall_epoll_ctl_t *) pms;
+    int ret;
+    ODEBUG(OCALL_EPOLL_CTL, ms);
+    ret = INLINE_SYSCALL(epoll_ctl, 4, ms->ms_epfd, ms->ms_op, ms->ms_fd, ms->ms_event);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_recvfrom(void * pms)
+{
+    ms_ocall_recvfrom_t *ms = (ms_ocall_recvfrom_t *) pms;
+    int ret;
+    ODEBUG(OCALL_RECVFROM, ms);
+    ret = INLINE_SYSCALL(recvfrom, 6, ms->ms_sockfd, ms->ms_buf, ms->ms_len, ms->ms_flags, ms->ms_addr, ms->ms_addrlen);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_accept4(void * pms)
+{
+    ms_ocall_accept4_t *ms = (ms_ocall_accept4_t *) pms;
+    int ret;
+    ODEBUG(OCALL_ACCEPT4, ms);
+    ret = INLINE_SYSCALL(accept4, 4, ms->ms_fd, ms->ms_addr, ms->ms_addrlen, ms->ms_flags);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_recvmsg(void * pms)
+{
+    ms_ocall_recvmsg_t *ms = (ms_ocall_recvmsg_t *) pms;
+    int ret;
+    ODEBUG(OCALL_RECVMSG, ms);
+    ret = INLINE_SYSCALL(recvmsg, 3, ms->ms_sockfd, ms->ms_msg, ms->ms_flags);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_accept(void * pms)
+{
+    ms_ocall_accept_t *ms = (ms_ocall_accept_t *) pms;
+    int ret;
+    ODEBUG(OCALL_ACCEPT, ms);
+    ret = INLINE_SYSCALL(accept, 3, ms->ms_fd, ms->ms_addr, ms->ms_addrlen);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_sendfile(void * pms)
+{
+    ms_ocall_sendfile_t *ms = (ms_ocall_sendfile_t *) pms;
+    int ret;
+    ODEBUG(OCALL_SENDFILE, ms);
+    ret = INLINE_SYSCALL(sendfile, 4, ms->ms_ofd, ms->ms_ifd, ms->ms_offset, ms->ms_count);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_epoll_pwait(void * pms)
+{
+    ms_ocall_epoll_pwait_t *ms = (ms_ocall_epoll_pwait_t *) pms;
+    int ret;
+    ODEBUG(OCALL_EPOLL_PWAIT, ms);
+    ret = INLINE_SYSCALL(epoll_pwait, 6, ms->ms_epfd, ms->ms_events, ms->ms_maxevents, ms->ms_timeout, ms->ms_sigmask, ms->ms_sigsetsize);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_writev(void * pms)
+{
+    ms_ocall_writev_t *ms = (ms_ocall_writev_t *) pms;
+    int ret;
+    ODEBUG(OCALL_WRITEV, ms);
+    ret = INLINE_SYSCALL(writev, 3, ms->ms_fd, ms->ms_vec, ms->ms_vlen);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_connect(void * pms)
+{
+    ms_ocall_connect_t *ms = (ms_ocall_connect_t *) pms;
+    int ret;
+    ODEBUG(OCALL_CONNECT, ms);
+    ret = INLINE_SYSCALL(connect, 3, ms->ms_sockfd, ms->ms_addr, ms->ms_addrlen);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_fcntl(void * pms)
+{
+    ms_ocall_fcntl_t *ms = (ms_ocall_fcntl_t *) pms;
+    int ret;
+    ODEBUG(OCALL_FCNTL, ms);
+    ret = INLINE_SYSCALL(fcntl, 3, ms->ms_fd, ms->ms_cmd, ms->ms_arg);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_getsockname(void * pms)
+{
+    ms_ocall_getsockname_t *ms = (ms_ocall_getsockname_t *) pms;
+    int ret;
+    ODEBUG(OCALL_GETSOCKNAME, ms);
+    ret = INLINE_SYSCALL(getsockname, 3, ms->ms_sockfd, ms->ms_addr, ms->ms_addrlen);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_setsockopt(void * pms)
+{
+    ms_ocall_setsockopt_t *ms = (ms_ocall_setsockopt_t *) pms;
+    int ret;
+    ODEBUG(OCALL_SETSOCKOPT, ms);
+    ret = INLINE_SYSCALL(setsockopt, 5, ms->ms_fd, ms->ms_level, ms->ms_optname, ms->ms_optval, ms->ms_optlen);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+int sgx_ocall_socket(void * pms)
+{
+    ms_ocall_socket_t *ms = (ms_ocall_socket_t *) pms;
+    int ret;
+    ODEBUG(OCALL_SOCKET, ms);
+    ret = INLINE_SYSCALL(socket, 3, ms->ms_family, ms->ms_type, ms->ms_protocol);
+    return IS_ERR(ret) ? unix_to_pal_error(ERRNO(ret)) : ret;
+}
+
+//----------------raw----------
+
+
+#endif
 
 void * ocall_table[OCALL_NR] = {
         [OCALL_EXIT]            = (void *) sgx_ocall_exit,
