@@ -887,6 +887,30 @@ void * ocall_table[OCALL_NR] = {
         [OCALL_DELETE]          = (void *) sgx_ocall_delete,
         [OCALL_SCHEDULE]        = (void *) sgx_ocall_schedule,
         [OCALL_LOAD_DEBUG]      = (void *) sgx_ocall_load_debug,
+#ifdef RAW_SYSCALL
+[OCALL_SOCKET]	 = (void *) sgx_ocall_socket,
+[OCALL_BIND]	 = (void *) sgx_ocall_bind,
+[OCALL_SENDTO]	 = (void *) sgx_ocall_sendto,
+[OCALL_IOCTL]	 = (void *) sgx_ocall_ioctl,
+[OCALL_EPOLL_CREATE]	 = (void *) sgx_ocall_epoll_create,
+[OCALL_LISTEN]	 = (void *) sgx_ocall_listen,
+[OCALL_SHUTDOWN]	 = (void *) sgx_ocall_shutdown,
+[OCALL_SENDMSG]	 = (void *) sgx_ocall_sendmsg,
+[OCALL_EPOLL_WAIT]	 = (void *) sgx_ocall_epoll_wait,
+[OCALL_EPOLL_CTL]	 = (void *) sgx_ocall_epoll_ctl,
+[OCALL_RECVFROM]	 = (void *) sgx_ocall_recvfrom,
+[OCALL_ACCEPT4]	 = (void *) sgx_ocall_accept4,
+[OCALL_RECVMSG]	 = (void *) sgx_ocall_recvmsg,
+[OCALL_ACCEPT]	 = (void *) sgx_ocall_accept,
+[OCALL_SENDFILE]	 = (void *) sgx_ocall_sendfile,
+[OCALL_EPOLL_PWAIT]	 = (void *) sgx_ocall_epoll_pwait,
+[OCALL_WRITEV]	 = (void *) sgx_ocall_writev,
+[OCALL_CONNECT]	 = (void *) sgx_ocall_connect,
+[OCALL_FCNTL]	 = (void *) sgx_ocall_fcntl,
+[OCALL_GETSOCKNAME]	 = (void *) sgx_ocall_getsockname,
+[OCALL_SETSOCKOPT]	 = (void *) sgx_ocall_setsockopt,
+#endif
+
     };
 
 #define EDEBUG(code, ms) do {} while (0)

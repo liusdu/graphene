@@ -1330,7 +1330,7 @@ int shim_do_shutdown (int sockfd, int how)
 }
 #endif
 
-#ifndef RAW_SYSACALL
+#ifndef RAW_SYSCALL
 int shim_do_getsockname (int sockfd, struct sockaddr * addr, int * addrlen)
 {
     if (!addr || !addrlen)

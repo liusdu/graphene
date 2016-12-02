@@ -824,9 +824,10 @@ int _DkRawGetsockname (int sockfd, void * addr, int * addrlen){
     ms->ms_addr = (void *)COPY_TO_USER((char *)addr, *(int *) addrlen);
     ms->ms_addrlen = (void *)COPY_TO_USER((char *)addrlen, 4);
     retval = SGX_OCALL(OCALL_GETSOCKNAME, ms);
-    if (retval >= 0)
+    if (retval >= 0) {
         COPY_FROM_USER(addr, ms->ms_addr, *(int *) addrlen);
         COPY_FROM_USER(addrlen, ms->ms_addrlen, 4);
+    }
     OCALL_EXIT();
     return retval;
 }
@@ -924,6 +925,9 @@ int _DkRawEpollWait (int epfd, void * events, int maxevents, int timeout){
     ms->ms_maxevents = maxevents;
     ms->ms_timeout = timeout;
     retval = SGX_OCALL(OCALL_EPOLL_WAIT, ms);
+    if (retval >= 0) {
+        COPY_FROM_USER(events, ms->ms_events, 12 * maxevents);
+    }
     OCALL_EXIT();
     return retval;
 }
@@ -956,19 +960,9 @@ int _DkRawEpollCtl(int epfd, int op, int fd, void * event){
 }
 
 int _DkRawAccept (int fd, void * addr, void * addrlen){
-    int retval = 0;
-    ms_ocall_accept_t *ms;
-    OCALLOC(ms, ms_ocall_accept_t *, sizeof(*ms));
-    ms->ms_fd = fd;
-    ms->ms_addr = (void *)COPY_TO_USER((char *)addr, *(int *)addrlen);
-    ms->ms_addrlen = (void *) COPY_TO_USER((char *)addrlen, 4);
-    retval = SGX_OCALL(OCALL_ACCEPT, ms);
-    if (retval >= 0) {
-        COPY_FROM_USER(addr, ms->ms_addr, *(int *)addrlen);
-        COPY_FROM_USER(addrlen, ms->ms_addrlen, 4);
-    }
-    OCALL_EXIT();
-    return retval;
+
+   int retval = ocall_sock_accept(fd, (struct sockaddr *) addr,(unsigned int *) addrlen,NULL);
+   return retval;
 }
 
 int _DkRawSetsockopt (int fd, int level, int optname, char * optval, int optlen){
@@ -987,14 +981,26 @@ int _DkRawSetsockopt (int fd, int level, int optname, char * optval, int optlen)
 
 long _DkRawRecvmsg (int sockfd, void * msg, int flags){
     int retval = 0;
+
     ms_ocall_recvmsg_t *ms;
+    struct msghdr *msg1 = (struct msghdr *) msg;
     OCALLOC(ms, ms_ocall_recvmsg_t *, sizeof(*ms));
     ms->ms_sockfd = sockfd;
     ms->ms_msg = (void *)COPY_TO_USER((char *)msg, 56);
+
+    ms->ms_msg->msg_iov = COPY_TO_USER(msg1->msg_iov,
+            sizeof(struct iovec) * msg1->msg_iovlen);
+    ms->ms_msg->msg_control = COPY_TO_USER(msg1->msg_control, msg1->msg_controllen);
+
     ms->ms_flags = flags;
     retval = SGX_OCALL(OCALL_RECVMSG, ms);
-    if (retval >= 0)
-        COPY_FROM_USER(msg, ms->ms_msg, 56);
+    if (retval >= 0) {
+        COPY_FROM_USER(msg1, ms->ms_msg, 56);
+        COPY_FROM_USER(msg1->msg_control,
+                ms->ms_msg->msg_control, msg1->msg_controllen);
+        COPY_FROM_USER(msg1->msg_iov, ms->ms_msg->msg_iov, msg1->msg_iovlen);
+    }
+        
     OCALL_EXIT();
     return retval;
 }
@@ -1053,7 +1059,12 @@ int _DkRawConnect (int sockfd, void * addr, int addrlen){
     return retval;
 }
 
-long _DkRawSendto (int sockfd, const void * buf, size_t len, int flags, const void * addr, int addrlen){
+
+long _DkRawSendto(int sockfd, const void * buf, size_t len, int flags, const void * addr, int addrlen){
+    // FIXME: I can  not pass flasg to ocall_sock_send
+    return ocall_sock_send(sockfd, buf, len,(const struct sockaddr *)
+            addr, (unsigned int)addrlen);
+    /*
     int retval = 0;
     ms_ocall_sendto_t *ms;
     OCALLOC(ms, ms_ocall_sendto_t *, sizeof(*ms));
@@ -1066,6 +1077,7 @@ long _DkRawSendto (int sockfd, const void * buf, size_t len, int flags, const vo
     retval = SGX_OCALL(OCALL_SENDTO, ms);
     OCALL_EXIT();
     return retval;
+    */
 }
 
 int _DkRawIoctl (int fd, int cmd, unsigned long arg){
@@ -1076,7 +1088,6 @@ int _DkRawIoctl (int fd, int cmd, unsigned long arg){
     ms->ms_cmd = cmd;
     ms->ms_arg = arg;
     retval = SGX_OCALL(OCALL_IOCTL, ms);
-    if (retval >= 0)
     OCALL_EXIT();
     return retval;
 }
@@ -1088,7 +1099,6 @@ int _DkRawListen (int sockfd, int backlog){
     ms->ms_sockfd = sockfd;
     ms->ms_backlog = backlog;
     retval = SGX_OCALL(OCALL_LISTEN, ms);
-    if (retval >= 0)
     OCALL_EXIT();
     return retval;
 }
@@ -1101,7 +1111,6 @@ int _DkRawSocket (int family, int type, int protocol){
     ms->ms_type = type;
     ms->ms_protocol = protocol;
     retval = SGX_OCALL(OCALL_SOCKET, ms);
-    if (retval >= 0)
     OCALL_EXIT();
     return retval;
 }
